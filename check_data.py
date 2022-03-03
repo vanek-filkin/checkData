@@ -26,7 +26,7 @@ class CheckData(Resource):
         data_column = {                   # Словарь с именами для обращения к солбцам
             "ip": 0, "subnet_mask": 1,
             "subnet_address": 2, "num_of_device": 3,
-            "name": 6, "Error": 5
+            "name": 5, "Error": 6
         }
         with open("data/Test_Python.csv") as readfile, open("data/Test_Python_Output.csv", "w") as writefile:
             reader = csv.reader(readfile, delimiter=';')

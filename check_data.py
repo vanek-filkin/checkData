@@ -72,7 +72,6 @@ class CheckData(Resource):
                 else:
                     device_correct_num += 1
                     row[data_column["num_of_device"]] = str(device_correct_num)
-                print(row[data_column["num_of_device"]])
                 row.append(error_string)
                 writer.writerow(row)
         return 200

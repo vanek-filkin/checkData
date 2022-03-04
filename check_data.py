@@ -31,7 +31,7 @@ class CheckData(Resource):
         with open("data/Test_Python.csv") as readfile, open("data/Test_Python_Output.csv", "w") as writefile:
             reader = csv.reader(readfile, delimiter=';')
             writer = csv.writer(writefile, delimiter=';',lineterminator="\r")
-            device_correct_num = 1
+            device_correct_num = 0
             for index, row in enumerate(reader):
                 error_string = ""
                 """
@@ -66,12 +66,13 @@ class CheckData(Resource):
                 """
                 num_of_device = row[data_column["num_of_device"]]
                 if not num_of_device.isdigit() or int(num_of_device) < 0:
-                    error_string += "Num Err  "
-                elif not int(num_of_device) > device_correct_num:
+                    error_string += "Num Err "
+                elif int(num_of_device) > device_correct_num:
                     device_correct_num = int(num_of_device)
                 else:
                     device_correct_num += 1
                     row[data_column["num_of_device"]] = str(device_correct_num)
+                print(row[data_column["num_of_device"]])
                 row.append(error_string)
                 writer.writerow(row)
         return 200

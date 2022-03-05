@@ -15,7 +15,7 @@ class CheckData(Resource):
         result = '{0}.{1}.{2}.{3}'
         oct_list = []
         for ip_oct, mask_oct in zip(ip_address.split('.'), mask.split('.')):
-            oct_list.append(str(int(ip_oct) | int(mask_oct)))
+            oct_list.append(str(int(ip_oct) & int(mask_oct)))
         return result.format(*oct_list)
 
     def get(self):

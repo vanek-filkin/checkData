@@ -28,50 +28,55 @@ class CheckData(Resource):
             "subnet_address": 2, "num_of_device": 3,
             "name": 5, "Error": 6
         }
-        with open("data/Test_Python.csv") as readfile, open("data/Test_Python_Output.csv", "w") as writefile:
-            reader = csv.reader(readfile, delimiter=';')
-            writer = csv.writer(writefile, delimiter=';',lineterminator="\r")
-            device_correct_num = 0
-            for index, row in enumerate(reader):
-                error_string = ""
-                """
-                Проверка на валидность данных с помощью ipaddress
-                """
-                try:
-                    ip = ipaddress.ip_address(row[data_column["ip"]])
-                except ValueError:
-                    error_string += "IP err "
-                try:
-                    subnet_mask = ipaddress.ip_address(row[data_column["subnet_mask"]])
-                except ValueError:
-                    error_string += "Mask err "
-                try:
-                    subnet_address = ipaddress.ip_address(row[data_column["subnet_address"]])
-                except ValueError:
-                    if not row[data_column["subnet_address"]] == "":
-                        error_string += "Subnet err "
+        status = ""
+        try:
+            with open("data/Test_Python.csv") as readfile, open("data/Test_Python_Output.csv", "w") as writefile:
+                reader = csv.reader(readfile, delimiter=';')
+                writer = csv.writer(writefile, delimiter=';', lineterminator="\r")
+                device_correct_num = 0
+                for index, row in enumerate(reader):
+                    error_string = ""
+                    """
+                    Проверка на валидность данных с помощью ipaddress
+                    """
+                    try:
+                        ip = ipaddress.ip_address(row[data_column["ip"]])
+                    except ValueError:
+                        error_string += "IP err "
+                    try:
+                        subnet_mask = ipaddress.ip_address(row[data_column["subnet_mask"]])
+                    except ValueError:
+                        error_string += "Mask err "
+                    try:
+                        subnet_address = ipaddress.ip_address(row[data_column["subnet_address"]])
+                    except ValueError:
+                        if not row[data_column["subnet_address"]] == "":
+                            error_string += "Subnet err "
+                        else:
+                            subnet_address = ""
+                    if not error_string:
+                        """
+                        Проверка адреса подсети
+                        """
+                        check_subnet_address = CheckData.apply_mask(str(ip), str(subnet_mask))
+                        if check_subnet_address != subnet_address and subnet_address:
+                            error_string += "Subnet incorrect "
+                        if subnet_address == "":
+                            row[data_column["subnet_address"]] = check_subnet_address
+                    """
+                    Проверка корректности номера компьютера.
+                    """
+                    num_of_device = row[data_column["num_of_device"]]
+                    if not num_of_device.isdigit() or int(num_of_device) < 0:
+                        error_string += "Num Err "
+                    elif int(num_of_device) > device_correct_num:
+                        device_correct_num = int(num_of_device)
                     else:
-                        subnet_address = ""
-                if not error_string:
-                    """
-                    Проверка адреса подсети
-                    """
-                    check_subnet_address = CheckData.apply_mask(str(ip), str(subnet_mask))
-                    if check_subnet_address != subnet_address and subnet_address:
-                        error_string += "Subnet incorrect "
-                    if subnet_address == "":
-                        row[data_column["subnet_address"]] = check_subnet_address
-                """
-                Проверка корректности номера компьютера.
-                """
-                num_of_device = row[data_column["num_of_device"]]
-                if not num_of_device.isdigit() or int(num_of_device) < 0:
-                    error_string += "Num Err "
-                elif int(num_of_device) > device_correct_num:
-                    device_correct_num = int(num_of_device)
-                else:
-                    device_correct_num += 1
-                    row[data_column["num_of_device"]] = str(device_correct_num)
-                row.append(error_string)
-                writer.writerow(row)
-        return 200
+                        device_correct_num += 1
+                        row[data_column["num_of_device"]] = str(device_correct_num)
+                    row.append(error_string)
+                    writer.writerow(row)
+            status = "Successful"
+        except FileNotFoundError:
+            status = "File data/Test_Python.csv not found"
+        return {"status": status}, 200

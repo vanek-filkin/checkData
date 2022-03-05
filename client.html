@@ -5,8 +5,9 @@
     <title>Client</title>
 </head>
 <script>
-    function Check() {
-  fetch("http://127.0.0.1:5000/check")
+    async function Check() {
+  await fetch("http://127.0.0.1:5000/check").then(response => response.json())
+  .then(data => document.write(data.status))
 }
 </script>
 <body>

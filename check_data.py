@@ -77,6 +77,6 @@ class CheckData(Resource):
                     row.append(error_string)
                     writer.writerow(row)
             status = "Successful"
-        except FileNotFoundError:
-            status = "File data/Test_Python.csv not found"
+        except (FileNotFoundError, PermissionError):
+            status = "File data/Test_Python.csv not found or your file is used by another program"
         return {"status": status}, 200
